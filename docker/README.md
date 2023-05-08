@@ -40,3 +40,5 @@ faster with the `APIURL` environment variable.
 # Run in the bitcoinjs folder
 APIURL=http://localhost:8080/1 npm run integration
 ```
+
+docker run -it -p 8080:8080 -p 18443:18443 -p 30001:30001 regtest-server-straus:01

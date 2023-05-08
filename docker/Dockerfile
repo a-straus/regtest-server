@@ -57,3 +57,4 @@ ENTRYPOINT ["/root/run_regtest_app.sh"]
 
 EXPOSE 8080
 EXPOSE 18443
+EXPOSE 30001
