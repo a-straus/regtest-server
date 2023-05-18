@@ -13,7 +13,7 @@ RUN apt update && \
    gnupg2 \
    libzmq3-dev \
    libsnappy-dev && \
-   curl --silent --location https://deb.nodesource.com/setup_10.x | bash -
+   curl --silent --location https://deb.nodesource.com/setup_16.x | bash -
 
 WORKDIR /root
 
@@ -44,7 +44,11 @@ RUN chmod +x install_leveldb.sh && \
   chmod +x run_regtest_app.sh && \
   ./install_leveldb.sh
 
-RUN git clone https://github.com/bitcoinjs/regtest-server.git
+RUN git clone https://github.com/a-straus/regtest-server.git && \
+    cd regtest-server && \
+    git fetch origin && \
+    git checkout taproot-support
+
 WORKDIR /root/regtest-server
 
 # Change the checkout branch if you need to. Must fetch because of Docker cache
