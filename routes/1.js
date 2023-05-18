@@ -7,9 +7,13 @@ let parallel = require('run-parallel')
 let rpc = require('../rpc')
 let typeforce = require('typeforce')
 let isHex64 = typeforce.HexN(64)
+let ecc = require('tiny-secp256k1')
+let { ECPairFactory} = require('ecpair')
 
 let DBLIMIT = 440 // max sequential leveldb walk
 let NETWORK = bitcoin.networks.regtest
+bitcoin.initEccLib(ecc);
+const ECPair = ECPairFactory(ecc);
 
 let sleep = ms => new Promise(r => setTimeout(r, ms))
 
@@ -247,11 +251,10 @@ module.exports = function (router, callback) {
 
   router.post('/r/faucetScript', authMiddleware, async (req, res) => {
     try {
-      const key = bitcoin.ECPair.makeRandom({ network: NETWORK })
+      const key = ECPair.makeRandom({ network: NETWORK });
       const payment = bitcoin.payments.p2pkh({ pubkey: key.publicKey, network: NETWORK })
       const address = payment.address
       const scId = bitcoin.crypto.sha256(payment.output).toString('hex')
-
       const txId = await pRpc('sendtoaddress', [address, parseInt(req.query.value) * 2 / 1e8, '', '', false, false, null, 'unset', false, 1])
       let unspent
       let counter = 10
@@ -264,11 +267,15 @@ module.exports = function (router, callback) {
           await sleep(10)
         }
       }
-      const txvb = new bitcoin.TransactionBuilder(NETWORK);
-      txvb.addInput(unspent.txId, unspent.vout, undefined, payment.output);
-      txvb.addOutput(Buffer.from(req.query.script, 'hex'), parseInt(req.query.value));
-      txvb.sign(0, key);
-      const txv = txvb.build();
+      const txvb = new bitcoin.Psbt({ network: NETWORK });
+
+
+      const txInfo = await pRpc('getrawtransaction', [unspent.txId, true])
+      txvb.addInput({hash: unspent.txId, index: unspent.vout, nonWitnessUtxo: Buffer.from(txInfo.hex, 'hex')});
+      txvb.addOutput({script: Buffer.from(req.query.script, 'hex'), value: parseInt(req.query.value)});
+      txvb.signInput(0, key);
+      txvb.finalizeAllInputs();
+      const txv = txvb.extractTransaction();
       await pRpc('sendrawtransaction', [txv.toHex()])
       res.easy(undefined, txv.getId())
     } catch (err) {

@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch via NPM",
+      "runtimeExecutable": "/Users/traus/.nvm/versions/node/v16.13.2/bin/node",
+      "runtimeArgs": [
+        "--inspect",
+        "${workspaceFolder}/index.js"
+            ],
+      "env": {
+        "KEYDB": "regtest-data/KEYS",
+        "INDEXDB": "regtest-data/db",
+        "PORT": "8080",
+        "ZMQ": "tcp://127.0.0.1:30001",
+        "RPC": "http://localhost:18443",
+        "RPCCOOKIE": "/Users/traus/dev/yacht/btc/regtest-data/regtest/.cookie"
+      }
+    }
+  ]
+}

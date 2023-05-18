@@ -20,15 +20,15 @@ WORKDIR /root
 COPY achow.asc ./
 
 RUN gpg --import achow.asc && \
-  wget https://bitcoincore.org/bin/bitcoin-core-22.0/SHA256SUMS && \
-  wget https://bitcoincore.org/bin/bitcoin-core-22.0/SHA256SUMS.asc && \
-  wget https://bitcoincore.org/bin/bitcoin-core-22.0/bitcoin-22.0-x86_64-linux-gnu.tar.gz && \
+  wget https://bitcoincore.org/bin/bitcoin-core-24.0/SHA256SUMS && \
+  wget https://bitcoincore.org/bin/bitcoin-core-24.0/SHA256SUMS.asc && \
+  wget https://bitcoincore.org/bin/bitcoin-core-24.0/bitcoin-24.0-x86_64-linux-gnu.tar.gz && \
   sha256sum --ignore-missing --check SHA256SUMS && \
   (gpg --verify SHA256SUMS.asc 2>&1 | grep "Good signature from \"Andrew Chow" || exit 1) && \
-  tar xvf bitcoin-22.0-x86_64-linux-gnu.tar.gz && \
-  rm -f bitcoin-22.0-x86_64-linux-gnu.tar.gz SHA256SUM* achow.asc && \
-  cp -R bitcoin-22.0/* /usr/ && \
-  rm -rf bitcoin-22.0/
+  tar xvf bitcoin-24.0-x86_64-linux-gnu.tar.gz && \
+  rm -f bitcoin-24.0-x86_64-linux-gnu.tar.gz SHA256SUM* achow.asc && \
+  cp -R bitcoin-24.0/* /usr/ && \
+  rm -rf bitcoin-24.0/
 
 RUN apt install -y \
   git \
@@ -56,3 +56,5 @@ RUN npm i
 ENTRYPOINT ["/root/run_regtest_app.sh"]
 
 EXPOSE 8080
+EXPOSE 18443
+EXPOSE 30001
